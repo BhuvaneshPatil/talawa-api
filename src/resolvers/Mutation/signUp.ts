@@ -107,6 +107,18 @@ export const signUp: MutationResolvers["signUp"] = async (_parent, args) => {
     uploadImageObj = await uploadImage(args.file, null);
   }
 
+  const defaultValues = {
+    userType: "USER",
+    adminApproved: false,
+  };
+  if (process.env.NODE_ENV !== "production") {
+    const users = await User.find({});
+    if (users.length === 0) {
+      defaultValues.userType = "SUPERADMIN";
+      defaultValues.adminApproved = true;
+    }
+  }
+
   const createdUser = await User.create({
     ...args.data,
     organizationUserBelongsTo: organization ? organization._id : null,
